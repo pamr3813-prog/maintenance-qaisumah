@@ -1,0 +1,12 @@
+# إعداد النشر التلقائي على Render
+services:
+  - type: web
+    name: maintenance-qaisumah
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
