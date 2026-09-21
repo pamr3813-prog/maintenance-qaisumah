@@ -32,12 +32,12 @@ const NAV = [
 
 export default function Layout() {
   const { t, lang, setLang } = useLang()
-  const { currentUser, logout, online, myUnread, db, send } = useStore()
+  const { currentUser, logout, online, myUnread, db, send, can } = useStore()
   const navigate = useNavigate()
   const [notifOpen, setNotifOpen] = useState(false)
   const [navOpen, setNavOpen] = useState(false)
 
-  const isAdmin = currentUser?.role === 'admin'
+  const canManageUsers = can('canManageUsers')
   const navItems = NAV
 
   function signOut() {
@@ -60,29 +60,29 @@ export default function Layout() {
     <div className="min-h-screen bg-muted/30">
       {/* الشريط الجانبي — ثابت على الشاشات الكبيرة، درج منزلق على الجوال */}
       <aside
-        className={`fixed inset-y-0 start-0 z-50 flex w-64 flex-col border-e bg-card transition-transform duration-200 print:hidden md:z-40 md:w-60 md:translate-x-0 ${
+        className={`fixed inset-y-0 start-0 z-50 flex w-64 flex-col bg-[#17365d] text-white transition-transform duration-200 print:hidden md:z-40 md:w-60 md:translate-x-0 ${
           navOpen ? 'translate-x-0' : 'ltr:-translate-x-full rtl:translate-x-full'
         }`}
       >
         <button
           onClick={() => setNavOpen(false)}
-          className="absolute end-2 top-2 rounded-md p-1 text-muted-foreground hover:bg-muted md:hidden"
+          className="absolute end-2 top-2 rounded-md p-1 text-white/60 hover:bg-white/10 md:hidden"
           aria-label="close"
         >
           <X className="size-4" />
         </button>
-        <div className="border-b px-4 py-4">
+        <div className="border-b border-white/10 px-4 py-4">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <img src="/logos/qaisumah-airport.png" alt="Qaisumah Airport" className="size-9 object-contain" />
               <div>
                 <div className="text-xs font-bold leading-tight">{lang === 'ar' ? 'مطار القيصومة' : 'Qaisumah Airport'}</div>
-                <div className="text-[10px] font-semibold text-muted-foreground">{t('app.title')}</div>
+                <div className="text-[10px] font-semibold text-[#9fc3e8]">{t('app.title')}</div>
               </div>
             </div>
             <div className="text-center">
               <img src="/logos/al-majal.png" alt="MAG — Al Majal Al Arabi" className="mx-auto h-7 w-auto object-contain" />
-              <div className="text-[10px] font-semibold text-muted-foreground">
+              <div className="text-[10px] font-semibold text-[#9fc3e8]">
                 {lang === 'ar' ? 'المجال العربي' : 'Al Majal Al Arabi'}
               </div>
             </div>
@@ -98,7 +98,7 @@ export default function Layout() {
               onClick={() => setNavOpen(false)}
               className={({ isActive }) =>
                 `flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                  isActive ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                  isActive ? 'bg-[#2e75b6] font-bold text-white shadow' : 'text-[#cfe0f5] hover:bg-white/10 hover:text-white'
                 }`
               }
             >
@@ -106,13 +106,13 @@ export default function Layout() {
               {t(key)}
             </NavLink>
           ))}
-          {isAdmin && (
+          {canManageUsers && (
             <NavLink
               to="/admin"
               onClick={() => setNavOpen(false)}
               className={({ isActive }) =>
                 `flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                  isActive ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                  isActive ? 'bg-[#2e75b6] font-bold text-white shadow' : 'text-[#cfe0f5] hover:bg-white/10 hover:text-white'
                 }`
               }
             >
@@ -122,7 +122,7 @@ export default function Layout() {
           )}
         </nav>
 
-        <div className="border-t p-3 text-xs text-muted-foreground">{t('app.footer')}</div>
+        <div className="border-t border-white/10 p-3 text-xs text-[#9fc3e8]">{t('app.footer')}</div>
       </aside>
 
       {/* خلفية معتمة تغلق الدرج عند اللمس على الجوال */}
@@ -132,9 +132,9 @@ export default function Layout() {
 
       {/* المحتوى */}
       <div className="flex min-h-screen flex-col ms-0 md:ms-60 print:ms-0">
-        <header className="sticky top-0 z-30 flex items-center justify-between border-b bg-card/80 px-3 py-2.5 backdrop-blur md:px-6 md:py-3 print:hidden">
+        <header className="sticky top-0 z-30 flex items-center justify-between border-b border-[#102a49] bg-[#17365d] px-3 py-2.5 text-white md:px-6 md:py-3 print:hidden">
           <div className="flex items-center gap-3">
-            <Button variant="outline" size="icon" className="md:hidden" onClick={() => setNavOpen(true)} aria-label="menu">
+            <Button variant="outline" size="icon" className="border-white/20 bg-transparent text-white hover:bg-white/10 hover:text-white md:hidden" onClick={() => setNavOpen(true)} aria-label="menu">
               <Menu className="size-4" />
             </Button>
             <Button
@@ -143,6 +143,7 @@ export default function Layout() {
               onClick={() => navigate(-1)}
               aria-label={t('common.back')}
               title={t('common.back')}
+              className="border-white/20 bg-transparent text-white hover:bg-white/10 hover:text-white"
             >
               <ArrowRight className="size-4 rtl:rotate-180" />
             </Button>
@@ -151,17 +152,17 @@ export default function Layout() {
                 <WifiOff className="size-3" /> {t('auth.offline')}
               </Badge>
             )}
-            <span className="hidden text-sm text-muted-foreground md:inline">{t('role.hint')}</span>
+            <span className="hidden text-sm text-[#9fc3e8] md:inline">{t('role.hint')}</span>
           </div>
 
           <div className="flex items-center gap-2">
             {/* الإشعارات */}
             <Popover open={notifOpen} onOpenChange={setNotifOpen}>
               <PopoverTrigger asChild>
-                <Button variant="outline" size="icon" className="relative" onClick={openNotifications}>
+                <Button variant="outline" size="icon" className="relative border-white/20 bg-transparent text-white hover:bg-white/10 hover:text-white" onClick={openNotifications}>
                   <Bell className="size-4" />
                   {myUnread > 0 && (
-                    <span className="absolute -top-1 -end-1 flex size-4 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white">
+                    <span className="absolute -top-1 -end-1 flex size-4 items-center justify-center rounded-full bg-[#ffd966] text-[10px] font-bold text-[#17365d]">
                       {myUnread > 9 ? '9+' : myUnread}
                     </span>
                   )}
@@ -186,7 +187,7 @@ export default function Layout() {
             {/* اللغة */}
             <button
               onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')}
-              className="flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium hover:bg-muted"
+              className="flex items-center gap-1.5 rounded-md border border-white/20 px-3 py-1.5 text-sm font-medium hover:bg-white/10"
             >
               <Languages className="size-4" />
               {t('lang.switch')}
@@ -194,13 +195,13 @@ export default function Layout() {
 
             {/* المستخدم الحالي */}
             {currentUser && (
-              <div className="flex items-center gap-2 rounded-md border px-2 py-1.5 md:px-3">
+              <div className="flex items-center gap-2 rounded-md border border-white/20 px-2 py-1.5 md:px-3">
                 <div className="min-w-0 text-end leading-tight">
                   <div className="max-w-[8.5rem] truncate text-sm font-semibold md:max-w-none">{currentUser.name}</div>
-                  <div className="truncate text-[11px] text-muted-foreground">{roleLabel(currentUser.role, lang)}</div>
+                  <div className="truncate text-[11px] text-[#9fc3e8]">{roleLabel(currentUser.role, lang)}</div>
                 </div>
-                <Button variant="ghost" size="icon" onClick={signOut} title={t('auth.logout')}>
-                  <LogOut className="size-4 text-destructive" />
+                <Button variant="ghost" size="icon" onClick={signOut} title={t('auth.logout')} className="text-white hover:bg-white/10 hover:text-white">
+                  <LogOut className="size-4 text-[#ffd966]" />
                 </Button>
               </div>
             )}

@@ -33,13 +33,13 @@ export default function Dashboard() {
     db.cmOrders.filter((o) => o.status === 'مكتملة').length
 
   const kpis = [
-    { label: t('mt.assetsTotal'), value: db.assets.length, icon: Boxes, to: '/assets' },
-    { label: t('mt.ordersTotal'), value: db.pmOrders.length + db.cmOrders.length, icon: Wrench, to: '/pm' },
-    { label: t('mt.open'), value: open(db.pmOrders) + open(db.cmOrders), icon: Clock, to: '/pm', warn: open(db.pmOrders) + open(db.cmOrders) > 0 },
-    { label: t('mt.overdue'), value: overduePm.length, icon: AlertTriangle, to: '/pm', bad: overduePm.length > 0 },
-    { label: t('mt.completed'), value: done, icon: CheckCircle2, to: '/pm' },
-    { label: t('mt.costTotal'), value: fmtMoney(cost), icon: Banknote, to: '/cm' },
-    { label: t('mt.downHours'), value: down, icon: Timer, to: '/cm' },
+    { label: t('mt.assetsTotal'), value: db.assets.length, icon: Boxes, to: '/assets', color: '#2e75b6' },
+    { label: t('mt.ordersTotal'), value: db.pmOrders.length + db.cmOrders.length, icon: Wrench, to: '/pm', color: '#2e75b6' },
+    { label: t('mt.open'), value: open(db.pmOrders) + open(db.cmOrders), icon: Clock, to: '/pm', warn: open(db.pmOrders) + open(db.cmOrders) > 0, color: '#e8a33d' },
+    { label: t('mt.overdue'), value: overduePm.length, icon: AlertTriangle, to: '/pm', bad: overduePm.length > 0, color: '#d9534f' },
+    { label: t('mt.completed'), value: done, icon: CheckCircle2, to: '/pm', color: '#3aa655' },
+    { label: t('mt.costTotal'), value: fmtMoney(cost), icon: Banknote, to: '/cm', color: '#ffd966' },
+    { label: t('mt.downHours'), value: down, icon: Timer, to: '/cm', color: '#d9534f' },
   ]
 
   /* أوامر حسب الحالة (دورية + تصحيحية) */
@@ -68,15 +68,21 @@ export default function Dashboard() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {kpis.map(({ label, value, icon: Icon, to, warn, bad }) => (
+        {kpis.map(({ label, value, icon: Icon, to, color, bad }) => (
           <Link key={label} to={to}>
-            <Card className={`transition-shadow hover:shadow-md ${bad ? 'border-red-300 bg-red-50' : warn ? 'border-amber-300 bg-amber-50' : ''}`}>
+            <Card
+              className="border-t-4 shadow transition-shadow hover:shadow-lg"
+              style={{ borderTopColor: bad ? '#c0504d' : color }}
+            >
               <CardContent className="flex items-center gap-4 p-5">
-                <div className={`flex size-11 items-center justify-center rounded-lg ${bad ? 'bg-red-600/10 text-red-600' : warn ? 'bg-amber-500/10 text-amber-600' : 'bg-primary/10 text-primary'}`}>
-                  <Icon className="size-5" />
+                <div
+                  className="flex size-12 items-center justify-center rounded-full"
+                  style={{ backgroundColor: `${bad ? '#c0504d' : color}1A`, color: bad ? '#c0504d' : color }}
+                >
+                  <Icon className="size-6" />
                 </div>
                 <div>
-                  <div className="text-2xl font-bold">{value}</div>
+                  <div className="text-3xl font-bold" style={{ color: bad ? '#c0504d' : '#17365d' }}>{value}</div>
                   <div className="text-sm text-muted-foreground">{label}</div>
                 </div>
               </CardContent>

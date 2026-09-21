@@ -66,7 +66,7 @@ export type PermKey = keyof typeof PERM_LABELS
 export const PERMS: Record<string, string[]> = {
   canEditAssets: ['omSuperintendent', 'admin'],
   canEditOrders: ['omSuperintendent', 'siteSupervisor', 'siteManager', 'admin'],
-  canManageUsers: ['admin'],
+  canManageUsers: ['omSuperintendent', 'admin'],
 }
 
 // ===== أنواع السحابة =====

@@ -17,7 +17,7 @@ const uid = () => Math.random().toString(36).slice(2, 10)
 export const PERMS = {
   canEditAssets: ['omSuperintendent', 'admin'], // سجل الأصول
   canEditOrders: ['omSuperintendent', 'siteSupervisor', 'siteManager', 'admin'], // الأوامر والبلاغات
-  canManageUsers: ['admin'],
+  canManageUsers: ['omSuperintendent', 'admin'],
 }
 const has = (user, perm) => {
   if (!user) return false
@@ -278,7 +278,7 @@ function handleAction(user, type, payload) {
     }
 
     case 'upsertUser': {
-      if (!has(user, 'canManageUsers')) throw new Error('غير مصرح — إدارة المستخدمين للمدير فقط')
+      if (!has(user, 'canManageUsers')) throw new Error('غير مصرح — إدارة المستخدمين للمدير أو لمدير العمليات والصيانة فقط')
       const u = payload
       if (db.users.some((x) => x.email === u.email && x.id !== u.id)) throw new Error('البريد الإلكتروني مسجل مسبقاً')
       if (u.id) {
@@ -288,11 +288,14 @@ function handleAction(user, type, payload) {
           const admins = db.users.filter((x) => x.role === 'admin' && x.active && x.id !== u.id)
           if (!admins.length) throw new Error('لا يمكن إلغاء آخر مدير للنظام')
         }
-        Object.assign(target, u)
-        notify(`حدّث المدير بيانات المستخدم ${u.name}`)
+        /* لا تمسح الرقم السري القديم إذا أُرسل فارغاً — يبقى كما هو */
+        const { pin, ...rest } = u
+        Object.assign(target, rest)
+        if (pin) target.pin = pin
+        notify(`حدّث ${user.name} بيانات المستخدم ${u.name}`)
       } else {
         db.users.push({ id: uid(), name: u.name, email: u.email, role: u.role, pin: u.pin || '0000', active: u.active !== false, permOverrides: u.permOverrides || undefined, createdAt: now })
-        notify(`أضاف المدير مستخدماً جديداً: ${u.name} (${u.role})`)
+        notify(`أضاف ${user.name} مستخدماً جديداً: ${u.name} (${u.role})`)
       }
       break
     }

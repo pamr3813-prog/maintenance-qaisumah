@@ -39,8 +39,8 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted/40 p-4">
-      <div className="w-full max-w-md rounded-2xl border bg-card p-8 shadow-lg">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[#0d1f3c] via-[#17365d] to-[#1f4e79] p-4">
+      <div className="w-full max-w-md rounded-2xl border border-white/10 bg-white p-8 shadow-2xl">
         {/* الشعاران */}
         <div className="mb-6 flex items-center justify-between gap-4">
           <div className="text-center">
@@ -55,7 +55,7 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <h1 className="mb-1 text-center text-xl font-bold">{t('app.title')}</h1>
+        <h1 className="mb-1 text-center text-xl font-bold text-[#17365d]">{t('app.title')}</h1>
         <p className="mb-6 text-center text-xs text-muted-foreground">{t('auth.subtitle')}</p>
 
         <div className="space-y-4">

@@ -82,7 +82,7 @@ export default function AdminPage() {
         name: form.name.trim(),
         email: form.email.trim(),
         role,
-        pin: form.pin || '0000',
+        pin: form.pin, /* فارغ عند التعديل = الإبقاء على القديم */
         active: form.active,
         permOverrides: formToOverrides(perms),
       })

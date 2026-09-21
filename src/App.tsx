@@ -8,14 +8,18 @@ import OrdersPage from '@/pages/OrdersPage'
 import DepartmentsPage from '@/pages/DepartmentsPage'
 import LoginPage from '@/pages/LoginPage'
 import AdminPage from '@/pages/AdminPage'
-import { StoreProvider, useStore } from '@/lib/db'
+import { StoreProvider, useStore, PERMS } from '@/lib/db'
 import { LanguageProvider } from '@/lib/i18n'
 
 function RequireAuth({ children, admin }: { children: ReactNode; admin?: boolean }) {
   const { currentUser, ready } = useStore()
   if (!ready) return null
   if (!currentUser) return <Navigate to="/login" replace />
-  if (admin && currentUser.role !== 'admin') return <Navigate to="/" replace />
+  if (admin) {
+    const base = PERMS.canManageUsers.includes(currentUser.role)
+    const o = currentUser.permOverrides?.canManageUsers
+    if (!(o === undefined ? base : !!o)) return <Navigate to="/" replace />
+  }
   return <>{children}</>
 }
 
