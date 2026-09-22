@@ -5,6 +5,7 @@ import { useStore } from '@/lib/db'
 import { useLang } from '@/lib/i18n'
 import { fmtMoney } from '@/lib/format'
 import { DEPTS, deptLabel } from '@/lib/departments'
+import { PrintButton } from '@/components/Print'
 
 export default function DepartmentsPage() {
   const { db } = useStore()
@@ -15,7 +16,10 @@ export default function DepartmentsPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-bold">{t('nav.depts')}</h1>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-2xl font-bold">{t('nav.depts')}</h1>
+        <PrintButton />
+      </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {DEPTS.map((d) => {
           const assets = db.assets.filter((a) => a.dept === d.code)

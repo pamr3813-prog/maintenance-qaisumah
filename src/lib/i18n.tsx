@@ -19,6 +19,7 @@ const dict = {
   'common.date': { ar: 'التاريخ', en: 'Date' },
   'common.qty': { ar: 'الكمية', en: 'Qty' },
   'common.search': { ar: 'بحث…', en: 'Search…' },
+  'common.print': { ar: 'طباعة', en: 'Print' },
   'common.total': { ar: 'الإجمالي', en: 'Total' },
   'common.none': { ar: 'لا يوجد', en: 'None' },
   'common.back': { ar: 'عودة', en: 'Back' },

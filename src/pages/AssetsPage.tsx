@@ -14,6 +14,7 @@ import { fmtDate } from '@/lib/format'
 import { ASSET_STATUS, CRITICALITY, DEPTS, ZONES, deptLabel } from '@/lib/departments'
 import { SearchableSelect } from '@/components/SearchableSelect'
 import { ReadOnlyBanner } from '@/components/ReadOnly'
+import { PrintButton } from '@/components/Print'
 import type { Asset } from '@/types'
 
 const CRIT_STYLE: Record<string, string> = {
@@ -55,7 +56,7 @@ export default function AssetsPage() {
           <h1 className="text-2xl font-bold">{t('nav.assets')}</h1>
           <p className="text-xs text-muted-foreground">{filtered.length} / {db.assets.length}</p>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 print:hidden">
           <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder={t('common.search')} className="w-44 md:w-56" />
           <SearchableSelect
             className="w-56"
@@ -68,6 +69,7 @@ export default function AssetsPage() {
             clearable={false}
           />
           {editable && <AssetDialog send={send} />}
+          <PrintButton />
         </div>
       </div>
 

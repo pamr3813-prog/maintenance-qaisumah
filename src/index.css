@@ -85,6 +85,34 @@
   }
 }
 
+/* ===== أنماط الطباعة ===== */
+@media print {
+  body {
+    background: #fff;
+  }
+  main {
+    padding: 0 !important;
+  }
+  /* الحفاظ على ألوان البطاقات والشارات في الورق */
+  * {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+  /* عدم قطع الصفوف والبطاقات والرسوم بين صفحتين */
+  tr,
+  .recharts-responsive-container,
+  img {
+    break-inside: avoid;
+  }
+  thead {
+    display: table-header-group;
+  }
+  /* منع ظهور أي حواف زائدة من الجداول الواسعة */
+  .rounded-lg {
+    border-radius: 0;
+  }
+}
+
 /* أختام الموافقة على نموذج طلب المواد */
 .stamp-approved {
   @apply inline-flex items-center gap-2 rounded-lg border-2 border-green-600 px-3 py-1.5 text-sm font-bold text-green-700;

@@ -13,6 +13,7 @@ import { fmtDate, fmtMoney } from '@/lib/format'
 import { DEPTS, FREQ, ORDER_STATUS, PRIORITY, deptLabel, isOverdue, localToday } from '@/lib/departments'
 import { SearchableSelect } from '@/components/SearchableSelect'
 import { ReadOnlyBanner } from '@/components/ReadOnly'
+import { PrintButton } from '@/components/Print'
 import type { CmOrder, OrderPhoto, OrderStatus, PmOrder } from '@/types'
 
 /* ضغط الصور قبل الإرسال: أقصى بُعد 1280 بكسل بصيغة JPEG */
@@ -154,7 +155,7 @@ export default function OrdersPage({ kind }: { kind: Kind }) {
           <h1 className="text-2xl font-bold">{isPm ? t('nav.pm') : t('nav.cm')}</h1>
           <p className="text-xs text-muted-foreground">{filtered.length} / {list.length}</p>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 print:hidden">
           <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder={t('common.search')} className="w-44 md:w-56" />
           <SearchableSelect
             className="w-56"
@@ -167,6 +168,7 @@ export default function OrdersPage({ kind }: { kind: Kind }) {
             clearable={false}
           />
           {editable && <OrderDialog kind={kind} db={db} send={send} currentUserName={currentUser?.name ?? ''} />}
+          <PrintButton />
         </div>
       </div>
 
@@ -189,7 +191,7 @@ export default function OrdersPage({ kind }: { kind: Kind }) {
               <TableHead>{t('mt.status')}</TableHead>
               <TableHead className="text-center">{isPm ? t('mt.due') : t('mt.downHours')}</TableHead>
               <TableHead className="text-center">{t('mt.deptCost')}</TableHead>
-              <TableHead className="w-24"></TableHead>
+              <TableHead className="w-24 print:hidden"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -237,7 +239,7 @@ export default function OrdersPage({ kind }: { kind: Kind }) {
                     )}
                   </TableCell>
                   <TableCell className="text-center">{fmtMoney(o.cost)}</TableCell>
-                  <TableCell>
+                  <TableCell className="print:hidden">
                     {editable && (
                       <div className="flex items-center">
                         <OrderDialog kind={kind} db={db} send={send} initial={o} currentUserName={currentUser?.name ?? ''} />

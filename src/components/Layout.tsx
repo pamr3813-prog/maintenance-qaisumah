@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import { useState } from 'react'
 import { roleLabel, useStore, APP_VERSION } from '@/lib/db'
+import { PrintHeader } from '@/components/Print'
 import { useLang } from '@/lib/i18n'
 import { fmtDateTime } from '@/lib/format'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
@@ -214,6 +215,7 @@ export default function Layout() {
         </header>
 
         <main className="flex-1 p-3 md:p-6">
+          <PrintHeader />
           <Outlet />
         </main>
       </div>

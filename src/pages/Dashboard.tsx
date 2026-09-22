@@ -12,6 +12,7 @@ import { useLang } from '@/lib/i18n'
 import { fmtDate, fmtDateTime, fmtMoney } from '@/lib/format'
 import { DEPTS, deptLabel, isOverdue, localToday } from '@/lib/departments'
 import { ReadOnlyBanner } from '@/components/ReadOnly'
+import { PrintButton } from '@/components/Print'
 
 const STATUS_COLORS: Record<string, string> = {
   'مكتملة': 'bg-green-100 text-green-800',
@@ -106,9 +107,12 @@ export default function Dashboard() {
       {!can('canEditOrders') && <ReadOnlyBanner />}
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h1 className="text-2xl font-bold">{t('dash.title')}</h1>
-        <Badge variant="outline" className="text-sm">
-          {t('mt.today')}: {fmtDate(localToday())}
-        </Badge>
+        <div className="flex items-center gap-2 print:hidden">
+          <PrintButton />
+          <Badge variant="outline" className="text-sm">
+            {t('mt.today')}: {fmtDate(localToday())}
+          </Badge>
+        </div>
       </div>
 
       {!showKPIs && (
@@ -312,7 +316,7 @@ export default function Dashboard() {
                         <button
                           type="button"
                           title={t('mt.remindDone')}
-                          className="flex items-center gap-1 rounded-md border border-green-300 px-2 py-1 text-xs font-semibold text-green-700 hover:bg-green-50"
+                          className="flex items-center gap-1 rounded-md border border-green-300 px-2 py-1 text-xs font-semibold text-green-700 hover:bg-green-50 print:hidden"
                           onClick={async () => {
                             try {
                               await send('upsertPm', { ...o, status: 'مكتملة' })
