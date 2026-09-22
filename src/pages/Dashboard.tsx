@@ -119,27 +119,35 @@ export default function Dashboard() {
       {showKPIs && (
       <>
 
-      {/* لافتة الترحيب بالشعارين */}
+      {/* لافتة الترحيب بالشعارين — اتجاه ثابت RTL: المجال العربي يمين الصفحة ومطارات الدمام يسارها في كلتا اللغتين */}
       <Card className="border-0 bg-gradient-to-l from-[#0d1f3c] via-[#17365d] to-[#1f4e79] text-white shadow">
-        <CardContent className="flex flex-wrap items-center justify-between gap-4 p-4 md:p-5">
+        <CardContent dir="rtl" className="flex flex-wrap items-center justify-between gap-4 p-4 md:p-5">
+          {/* أعلى يمين الصفحة: شعار المجال العربي */}
           <div className="flex items-center gap-3">
+            <img src="/logos/al-majal.png" alt="MAG — Al Majal Al Arabi" className="h-11 w-auto object-contain md:h-12" />
+            <div className="text-start">
+              <div className="text-xs font-semibold text-[#9fc3e8]">MAG</div>
+              <div className="whitespace-nowrap text-[11px] text-[#9fc3e8]">{lang === 'ar' ? 'المجال العربي' : 'Al Majal Al Arabi'}</div>
+            </div>
+          </div>
+
+          {/* الوسط: الترحيب */}
+          <div className="order-last w-full text-center md:order-none md:w-auto">
+            <div className="text-base font-bold leading-tight md:text-lg">{t('dash.welcome')}</div>
+            <div className="text-xs text-[#9fc3e8]">{t('dash.welcomeSub')}</div>
+          </div>
+
+          {/* أعلى يسار الصفحة: شعار مطارات الدمام */}
+          <div className="flex items-center gap-3">
+            <div className="text-end">
+              <div className="whitespace-nowrap text-xs font-semibold text-[#9fc3e8]">{lang === 'ar' ? 'مطار القيصومة' : 'Qaisumah Airport'}</div>
+              <div className="text-[11px] text-[#9fc3e8]">Dammam Airports</div>
+            </div>
             <img
               src="/logos/dammam-airports.png"
               alt="Dammam Airports"
               className="h-12 w-auto rounded bg-white p-1 object-contain md:h-14"
             />
-            <div>
-              <div className="text-base font-bold leading-tight md:text-lg">{t('dash.welcome')}</div>
-              <div className="text-xs text-[#9fc3e8]">{t('dash.welcomeSub')}</div>
-            </div>
-          </div>
-          {/* مجموعة شعار المجال العربي — اتجاه ثابت RTL حتى في الواجهة الإنجليزية ليبقى الشكل مطابقاً للعربية */}
-          <div className="flex items-center gap-3" dir="rtl">
-            <div className="text-end">
-              <div className="text-xs font-semibold text-[#9fc3e8]">MAG</div>
-              <div className="whitespace-nowrap text-[11px] text-[#9fc3e8]">{lang === 'ar' ? 'المجال العربي' : 'Al Majal Al Arabi'}</div>
-            </div>
-            <img src="/logos/al-majal.png" alt="MAG — Al Majal Al Arabi" className="h-10 w-auto object-contain md:h-12" />
           </div>
         </CardContent>
       </Card>
