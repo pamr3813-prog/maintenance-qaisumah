@@ -56,7 +56,8 @@ export function normalizeRole(input: string): string {
 /** مفاتيح ترجمة أسماء الصلاحيات */
 export const PERM_LABELS = {
   canEditAssets: 'ad.permAssets',
-  canEditOrders: 'ad.permOrders',
+  canEditOrders: 'ad.permRaiseClose', // رفع البلاغات وإغلاقها
+  canViewKPIs: 'ad.permView', // رؤية المؤشرات والأعمال المفتوحة والمغلقة
   canManageUsers: 'ad.permUsers',
 } as const
 
@@ -66,8 +67,12 @@ export type PermKey = keyof typeof PERM_LABELS
 export const PERMS: Record<string, string[]> = {
   canEditAssets: ['omSuperintendent', 'admin'],
   canEditOrders: ['omSuperintendent', 'siteSupervisor', 'siteManager', 'admin'],
+  canViewKPIs: ['storekeeper', 'purchasing', 'siteSupervisor', 'logisticsSupervisor', 'omSuperintendent', 'siteManager', 'projectManagement', 'admin'],
   canManageUsers: ['omSuperintendent', 'admin'],
 }
+
+/** رقم إصدار التطبيق — يظهر في الشريط الجانبي للتأكد من وصول آخر تحديث */
+export const APP_VERSION = 'v1.4.0'
 
 // ===== أنواع السحابة =====
 

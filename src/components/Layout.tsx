@@ -15,7 +15,7 @@ import {
   ArrowRight,
 } from 'lucide-react'
 import { useState } from 'react'
-import { roleLabel, useStore } from '@/lib/db'
+import { roleLabel, useStore, APP_VERSION } from '@/lib/db'
 import { useLang } from '@/lib/i18n'
 import { fmtDateTime } from '@/lib/format'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
@@ -122,7 +122,12 @@ export default function Layout() {
           )}
         </nav>
 
-        <div className="border-t border-white/10 p-3 text-xs text-[#9fc3e8]">{t('app.footer')}</div>
+        <div className="border-t border-white/10 p-3 text-xs text-[#9fc3e8]">
+          {t('app.footer')}
+          <span className="mt-1 block text-[10px] text-white/50">
+            {t('app.version')} {APP_VERSION}
+          </span>
+        </div>
       </aside>
 
       {/* خلفية معتمة تغلق الدرج عند اللمس على الجوال */}

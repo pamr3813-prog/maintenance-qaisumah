@@ -36,7 +36,8 @@ function sanitizePhotos(input) {
 // ===== الصلاحيات =====
 export const PERMS = {
   canEditAssets: ['omSuperintendent', 'admin'], // سجل الأصول
-  canEditOrders: ['omSuperintendent', 'siteSupervisor', 'siteManager', 'admin'], // الأوامر والبلاغات
+  canEditOrders: ['omSuperintendent', 'siteSupervisor', 'siteManager', 'admin'], // رفع البلاغات وإغلاقها
+  canViewKPIs: ['storekeeper', 'purchasing', 'siteSupervisor', 'logisticsSupervisor', 'omSuperintendent', 'siteManager', 'projectManagement', 'admin'], // رؤية المؤشرات والأعمال
   canManageUsers: ['omSuperintendent', 'admin'],
 }
 const has = (user, perm) => {
@@ -429,6 +430,22 @@ if (existsSync(DIST_DIR)) {
   })
 }
 
+// ===== تذكيرات الأعمال المتأخرة — إشعار واحد يومياً لكل عملية متأخرة =====
+const overdueNotified = new Map() // orderId -> 'YYYY-MM-DD'
+function checkOverdueReminders() {
+  const today = new Date().toISOString().slice(0, 10)
+  let changed = false
+  for (const o of db.pmOrders) {
+    if (o.status === 'مكتملة' || !o.due || o.due >= today) continue
+    if (overdueNotified.get(o.id) === today) continue
+    overdueNotified.set(o.id, today)
+    notify(`⏰ تذكير بعمل متأخر: ${o.no} — ${o.task} (كان مستحقاً بتاريخ ${o.due})`)
+    changed = true
+  }
+  if (changed) broadcast()
+}
+setInterval(checkOverdueReminders, 60 * 60 * 1000).unref()
+setTimeout(checkOverdueReminders, 15000)
+
 server.listen(PORT, '0.0.0.0', () => {
-  console.log(`Maintenance server listening on port ${PORT} (cloud: ${CLOUD_MODE ? SUPA_BUCKET : 'off'})`)
-})
+  console.log(`Maintenance server listening on port ${PORT} (cloud: ${CLOUD_MODE ? SUPA_BUCKET : 'off'})`)})

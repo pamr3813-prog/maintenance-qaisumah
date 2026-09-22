@@ -1,4 +1,5 @@
 import { Link } from 'react-router'
+import { toast } from 'sonner'
 import { Boxes, Wrench, RefreshCw, AlertTriangle, CheckCircle2, Clock, Banknote, Timer, Pencil } from 'lucide-react'
 import {
   BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -60,8 +61,9 @@ export function StatusBadge({ status }: { status: string }) {
 }
 
 export default function Dashboard() {
-  const { db, can } = useStore()
+  const { db, can, send } = useStore()
   const { t, lang } = useLang()
+  const showKPIs = can('canViewKPIs')
 
   const open = (arr: { status: string }[]) => arr.filter((x) => x.status !== 'مكتملة').length
   const overduePm = db.pmOrders.filter((o) => isOverdue(o.due, o.status))
@@ -108,6 +110,14 @@ export default function Dashboard() {
           {t('mt.today')}: {fmtDate(localToday())}
         </Badge>
       </div>
+
+      {!showKPIs && (
+        <Card className="border-amber-300 bg-amber-50">
+          <CardContent className="p-4 text-sm font-medium text-amber-800">🔒 {t('dash.noPermView')}</CardContent>
+        </Card>
+      )}
+      {showKPIs && (
+      <>
 
       {/* لافتة الترحيب بالشعارين */}
       <Card className="border-0 bg-gradient-to-l from-[#0d1f3c] via-[#17365d] to-[#1f4e79] text-white shadow">
@@ -262,6 +272,8 @@ export default function Dashboard() {
           </Card>
         </div>
       </div>
+      </>
+      )}
 
       <Card className={overduePm.length > 0 ? 'border-red-300' : ''}>
         <CardHeader className="pb-2">
@@ -287,6 +299,21 @@ export default function Dashboard() {
                     </div>
                     <div className="flex items-center gap-2">
                       <Badge variant="destructive">{fmtDate(o.due)}</Badge>
+                      {can('canEditOrders') && (
+                        <button
+                          type="button"
+                          title={t('mt.remindDone')}
+                          className="flex items-center gap-1 rounded-md border border-green-300 px-2 py-1 text-xs font-semibold text-green-700 hover:bg-green-50"
+                          onClick={async () => {
+                            try {
+                              await send('upsertPm', { ...o, status: 'مكتملة' })
+                              toast.success(`${o.no} — ${t('mt.reminded')}`)
+                            } catch { /* رسالة الخطأ تظهر تلقائياً */ }
+                          }}
+                        >
+                          <CheckCircle2 className="size-3.5" /> {t('mt.remindDone')}
+                        </button>
+                      )}
                       <Link to="/pm" className="text-muted-foreground hover:text-foreground" title={t('common.edit')}>
                         <Pencil className="size-4" />
                       </Link>
