@@ -60,8 +60,8 @@ export default function Layout() {
     <div className="min-h-screen bg-muted/30">
       {/* الشريط الجانبي — ثابت على الشاشات الكبيرة، درج منزلق على الجوال */}
       <aside
-        className={`fixed inset-y-0 start-0 z-50 flex w-64 flex-col bg-[#17365d] text-white transition-transform duration-200 print:hidden md:z-40 md:w-60 md:translate-x-0 ${
-          navOpen ? 'translate-x-0' : 'ltr:-translate-x-full rtl:translate-x-full'
+        className={`fixed inset-y-0 start-0 z-50 flex w-64 flex-col bg-[#17365d] text-white transition-transform duration-200 print:hidden md:z-40 md:w-60 ${
+          navOpen ? 'translate-x-0' : 'md:translate-x-0 max-md:-translate-x-full max-md:rtl:translate-x-full'
         }`}
       >
         <button
