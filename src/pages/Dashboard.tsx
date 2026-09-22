@@ -133,10 +133,11 @@ export default function Dashboard() {
               <div className="text-xs text-[#9fc3e8]">{t('dash.welcomeSub')}</div>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          {/* مجموعة شعار المجال العربي — اتجاه ثابت RTL حتى في الواجهة الإنجليزية ليبقى الشكل مطابقاً للعربية */}
+          <div className="flex items-center gap-3" dir="rtl">
             <div className="text-end">
               <div className="text-xs font-semibold text-[#9fc3e8]">MAG</div>
-              <div className="text-[11px] text-[#9fc3e8]">{lang === 'ar' ? 'المجال العربي' : 'Al Majal Al Arabi'}</div>
+              <div className="whitespace-nowrap text-[11px] text-[#9fc3e8]">{lang === 'ar' ? 'المجال العربي' : 'Al Majal Al Arabi'}</div>
             </div>
             <img src="/logos/al-majal.png" alt="MAG — Al Majal Al Arabi" className="h-10 w-auto object-contain md:h-12" />
           </div>

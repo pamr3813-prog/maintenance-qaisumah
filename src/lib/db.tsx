@@ -72,7 +72,7 @@ export const PERMS: Record<string, string[]> = {
 }
 
 /** رقم إصدار التطبيق — يظهر في الشريط الجانبي للتأكد من وصول آخر تحديث */
-export const APP_VERSION = 'v1.4.0'
+export const APP_VERSION = 'v1.4.1'
 
 // ===== أنواع السحابة =====
 
