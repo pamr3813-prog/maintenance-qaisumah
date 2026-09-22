@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react'
-import { Plus, Pencil, Trash2 } from 'lucide-react'
+import { useMemo, useRef, useState } from 'react'
+import { Plus, Pencil, Trash2, Camera, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -13,7 +13,98 @@ import { fmtDate, fmtMoney } from '@/lib/format'
 import { DEPTS, FREQ, ORDER_STATUS, PRIORITY, deptLabel, isOverdue, localToday } from '@/lib/departments'
 import { SearchableSelect } from '@/components/SearchableSelect'
 import { ReadOnlyBanner } from '@/components/ReadOnly'
-import type { CmOrder, OrderStatus, PmOrder } from '@/types'
+import type { CmOrder, OrderPhoto, OrderStatus, PmOrder } from '@/types'
+
+/* ضغط الصور قبل الإرسال: أقصى بُعد 1280 بكسل بصيغة JPEG */
+async function fileToDataUrl(file: File): Promise<string> {
+  const bitmap = await createImageBitmap(file)
+  const scale = Math.min(1, 1280 / Math.max(bitmap.width, bitmap.height))
+  const canvas = document.createElement('canvas')
+  canvas.width = Math.round(bitmap.width * scale)
+  canvas.height = Math.round(bitmap.height * scale)
+  const ctx = canvas.getContext('2d')!
+  ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height)
+  bitmap.close()
+  return canvas.toDataURL('image/jpeg', 0.72)
+}
+
+function PhotoThumb({ p, onRemove }: { p: OrderPhoto; onRemove?: () => void }) {
+  return (
+    <div className="group relative size-16 overflow-hidden rounded-md border">
+      <img src={p.dataUrl} alt={p.name} className="size-full object-cover" />
+      <span className={`absolute start-0 top-0 px-1 text-[9px] font-bold text-white ${p.kind === 'after' ? 'bg-green-600' : 'bg-red-600'}`}>
+        {p.kind === 'after' ? '✔' : '⚠'}
+      </span>
+      {onRemove && (
+        <button
+          type="button"
+          title="حذف"
+          onClick={onRemove}
+          className="absolute end-0 top-0 hidden rounded-bl bg-black/60 p-0.5 text-white group-hover:block"
+        >
+          <X className="size-3" />
+        </button>
+      )}
+    </div>
+  )
+}
+
+function PhotoUploader({
+  kind,
+  photos,
+  onAdd,
+  onRemove,
+  disabled,
+}: {
+  kind: 'before' | 'after'
+  photos: OrderPhoto[]
+  onAdd: (list: OrderPhoto[]) => void
+  onRemove: (id: string) => void
+  disabled?: boolean
+}) {
+  const { t } = useLang()
+  const inputRef = useRef<HTMLInputElement>(null)
+  const mine = photos.filter((p) => p.kind === kind)
+
+  async function handleFiles(files: FileList | null) {
+    if (!files) return
+    const added: OrderPhoto[] = []
+    for (const f of Array.from(files)) {
+      if (!f.type.startsWith('image/')) continue
+      const dataUrl = await fileToDataUrl(f)
+      added.push({ id: Math.random().toString(36).slice(2), kind, dataUrl, name: f.name, at: new Date().toISOString(), by: '' })
+    }
+    if (added.length) onAdd(added)
+    if (inputRef.current) inputRef.current.value = ''
+  }
+
+  return (
+    <div className="sm:col-span-2 space-y-1.5">
+      <Label className="flex items-center gap-1.5">
+        <Camera className="size-3.5 text-primary" />
+        {kind === 'before' ? t('mt.photosBefore') : t('mt.photosAfter')}
+      </Label>
+      <div className="flex flex-wrap items-center gap-2">
+        {mine.map((p) => (
+          <PhotoThumb key={p.id} p={p} onRemove={disabled ? undefined : () => onRemove(p.id)} />
+        ))}
+        {!disabled && (
+          <button
+            type="button"
+            onClick={() => inputRef.current?.click()}
+            className="flex size-16 flex-col items-center justify-center gap-0.5 rounded-md border-2 border-dashed text-muted-foreground hover:border-primary hover:text-primary"
+            title={t('mt.addPhoto')}
+          >
+            <Camera className="size-5" />
+            <span className="text-[9px]">{t('mt.addPhoto')}</span>
+          </button>
+        )}
+        <input ref={inputRef} type="file" accept="image/*" multiple hidden onChange={(e) => void handleFiles(e.target.files)} />
+      </div>
+      {!disabled && <p className="text-[11px] text-muted-foreground">{t('mt.photoHint')}</p>}
+    </div>
+  )
+}
 
 type Kind = 'pm' | 'cm'
 
@@ -113,6 +204,15 @@ export default function OrdersPage({ kind }: { kind: Kind }) {
                   <TableCell><Badge variant="secondary">{deptLabel(asset?.dept ?? '', lang)}</Badge></TableCell>
                   <TableCell className="max-w-72 whitespace-normal break-words">
                     {'task' in o ? o.task : o.fault}
+                    {!isPm && (o as CmOrder).photos?.length ? (
+                      <span className="mt-1.5 flex flex-wrap gap-1">
+                        {(o as CmOrder).photos!.map((p) => (
+                          <a key={p.id} href={p.dataUrl} target="_blank" rel="noreferrer" title={p.name}>
+                            <img src={p.dataUrl} alt={p.name} className="size-10 rounded border object-cover" />
+                          </a>
+                        ))}
+                      </span>
+                    ) : null}
                   </TableCell>
                   {!isPm && (
                     <TableCell><Badge className={PRIO_STYLE[(o as CmOrder).priority] ?? ''}>{(o as CmOrder).priority}</Badge></TableCell>
@@ -202,6 +302,7 @@ function OrderDialog({
   const [cost, setCost] = useState(String(initial?.cost ?? 0))
   const [due, setDue] = useState(isPm ? ((initial as PmOrder)?.due ?? '') : '')
   const [downTime, setDownTime] = useState(!isPm ? String((initial as CmOrder)?.downTime ?? 0) : '0')
+  const [photos, setPhotos] = useState<OrderPhoto[]>(!isPm ? ((initial as CmOrder)?.photos ?? []) : [])
 
   const techUsers = db.users.filter((u) => u.active)
   const techName = techUsers.find((u) => u.id === techId)?.name ?? initial?.techName ?? currentUserName
@@ -219,7 +320,7 @@ function OrderDialog({
     }
     void send(isPm ? 'upsertPm' : 'upsertCm', isPm
       ? { ...base, task: task.trim(), freq, due }
-      : { ...base, fault: fault.trim(), priority, downTime: Number(downTime) || 0 })
+      : { ...base, fault: fault.trim(), priority, downTime: Number(downTime) || 0, photos: photos.map((p) => ({ ...p, by: p.by || currentUserName })) })
     setOpen(false)
   }
 
@@ -304,6 +405,22 @@ function OrderDialog({
             <Label>{t('mt.deptCost')} (SAR)</Label>
             <Input type="number" min="0" value={cost} onChange={(e) => setCost(e.target.value)} />
           </div>
+          {!isPm && (
+            <>
+              <PhotoUploader
+                kind="before"
+                photos={photos}
+                onAdd={(add) => setPhotos((prev) => [...prev, ...add])}
+                onRemove={(id) => setPhotos((prev) => prev.filter((p) => p.id !== id))}
+              />
+              <PhotoUploader
+                kind="after"
+                photos={photos}
+                onAdd={(add) => setPhotos((prev) => [...prev, ...add])}
+                onRemove={(id) => setPhotos((prev) => prev.filter((p) => p.id !== id))}
+              />
+            </>
+          )}
         </div>
         <Button className="w-full" onClick={submit}>{t('common.save')}</Button>
       </DialogContent>

@@ -393,6 +393,18 @@ const dict = {
   'mt.deptCost': { ar: 'التكلفة', en: 'Cost' },
   'mt.deptOpen': { ar: 'أعمال مفتوحة', en: 'Open Work' },
   'mt.readOnly': { ar: 'صلاحياتك الحالية للعرض فقط — التعديل لمدير العمليات والصيانة أو المدير', en: 'Your current access is read-only — editing is for the O&M Superintendent or Admin' },
+  'mt.photosBefore': { ar: 'صور العطل (قبل الصيانة)', en: 'Fault photos (before repair)' },
+  'mt.photosAfter': { ar: 'صور ما بعد الإنجاز', en: 'Photos after completion' },
+  'mt.addPhoto': { ar: 'إضافة صور', en: 'Add photos' },
+  'mt.photoHint': { ar: 'يمكن اختيار أكثر من صورة دفعة واحدة — تُضغط تلقائياً قبل الرفع', en: 'Select multiple images at once — auto-compressed before upload' },
+  'dash.welcome': { ar: 'أهلاً بك في نظام صيانة مطار القيصومة', en: 'Welcome to Qaisumah Airport Maintenance System' },
+  'dash.welcomeSub': { ar: 'المجال العربي — Al Majal Al Arabi (MAG)', en: 'Al Majal Al Arabi (MAG)' },
+  'dash.chartsSection': { ar: 'مؤشرات الصيانة الشهرية', en: 'Monthly Maintenance Indicators' },
+  'dash.demoBadge': { ar: 'بيانات تجريبية للعرض', en: 'Demo data' },
+  'dash.monthlyCompleted': { ar: 'أوامر مكتملة (دورية / تصحيحية)', en: 'Completed orders (PM / CM)' },
+  'dash.monthlyCost': { ar: 'التكلفة الشهرية (ر.س)', en: 'Monthly cost (SAR)' },
+  'dash.downtimeTrend': { ar: 'ساعات التوقف الشهرية', en: 'Monthly downtime hours' },
+  'dash.prioDist': { ar: 'الأعطال حسب الأولوية', en: 'Faults by priority' },
 } as const
 
 export type TKey = keyof typeof dict

@@ -47,6 +47,15 @@ export interface PmOrder {
   completedAt?: string
 }
 
+export interface OrderPhoto {
+  id: string
+  kind: 'before' | 'after' // صور العطل قبل الصيانة / بعد الإنجاز
+  dataUrl: string
+  name: string
+  at: string
+  by: string
+}
+
 export interface CmOrder {
   id: string
   no: string
@@ -59,6 +68,7 @@ export interface CmOrder {
   status: OrderStatus
   downTime: number // ساعات التوقف
   cost: number
+  photos?: OrderPhoto[]
   createdBy: string
   createdAt: string
   completedAt?: string

@@ -13,6 +13,26 @@ const DATA_FILE = join(__dirname, 'data.json')
 
 const uid = () => Math.random().toString(36).slice(2, 10)
 
+/* صور مرفقة ببلاغات الصيانة التصحيحية — تحقق من البنية والحجم */
+function sanitizePhotos(input) {
+  if (input === undefined || input === null) return undefined
+  if (!Array.isArray(input)) throw new Error('صيغة الصور غير صالحة')
+  if (input.length > 12) throw new Error('الحد الأقصى 12 صورة لكل بلاغ')
+  return input.map((p) => {
+    if (!p || typeof p !== 'object') throw new Error('صيغة الصور غير صالحة')
+    if (typeof p.dataUrl !== 'string' || !p.dataUrl.startsWith('data:image/')) throw new Error('صيغة الصورة غير صالحة')
+    if (p.dataUrl.length > 900_000) throw new Error('حجم الصورة كبير — الحد الأقصى نحو 650 كيلوبايت للصورة')
+    return {
+      id: typeof p.id === 'string' && p.id ? p.id : uid(),
+      kind: p.kind === 'after' ? 'after' : 'before',
+      dataUrl: p.dataUrl,
+      name: String(p.name ?? '').slice(0, 120),
+      at: String(p.at ?? ''),
+      by: String(p.by ?? '').slice(0, 80),
+    }
+  })
+}
+
 // ===== الصلاحيات =====
 export const PERMS = {
   canEditAssets: ['omSuperintendent', 'admin'], // سجل الأصول
@@ -251,6 +271,7 @@ function handleAction(user, type, payload) {
           date: o.date ?? t.date, assetId: o.assetId, fault: o.fault.trim(), priority: o.priority ?? 'متوسطة',
           techId: o.techId ?? null, techName: o.techName ?? '',
           status: o.status ?? 'لم تبدأ', downTime: Number(o.downTime) || 0, cost: Number(o.cost) || 0,
+          photos: sanitizePhotos(o.photos) ?? t.photos,
           completedAt: o.status === 'مكتملة' ? (wasDone ? t.completedAt : now) : undefined,
         })
         notify(`عدّل ${user.name} بلاغاً ${t.no}`)
@@ -260,10 +281,12 @@ function handleAction(user, type, payload) {
           id: uid(), no, date: o.date || now.slice(0, 10), assetId: o.assetId, fault: o.fault.trim(),
           priority: o.priority ?? 'متوسطة', techId: o.techId ?? null, techName: o.techName ?? '',
           status: o.status ?? 'لم تبدأ', downTime: Number(o.downTime) || 0, cost: Number(o.cost) || 0,
+          photos: sanitizePhotos(o.photos) ?? [],
           createdBy: user.name, createdAt: now,
         }
         db.cmOrders.unshift(order)
-        notify(`بلاغ عطل جديد ${no}: ${order.fault} — ${asset.name} (${PRIORITY_TXT[order.priority] || order.priority})`)
+        const pics = order.photos.length ? ` — مرفق ${order.photos.length} صورة` : ''
+        notify(`بلاغ عطل جديد ${no}: ${order.fault} — ${asset.name} (${PRIORITY_TXT[order.priority] || order.priority})${pics}`)
       }
       break
     }

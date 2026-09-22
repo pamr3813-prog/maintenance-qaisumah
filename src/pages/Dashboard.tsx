@@ -1,5 +1,9 @@
 import { Link } from 'react-router'
 import { Boxes, Wrench, RefreshCw, AlertTriangle, CheckCircle2, Clock, Banknote, Timer, Pencil } from 'lucide-react'
+import {
+  BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip,
+  Legend, ResponsiveContainer,
+} from 'recharts'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { useStore } from '@/lib/db'
@@ -14,6 +18,42 @@ const STATUS_COLORS: Record<string, string> = {
   'لم تبدأ': 'bg-slate-100 text-slate-600',
   'متوقفة': 'bg-red-100 text-red-700',
 }
+
+const CHART_COLORS = ['#2e75b6', '#e8a33d', '#d9534f', '#3aa655', '#ffd966', '#7a6fbe']
+
+/* آخر 6 أشهر بمسمياتها حسب لغة الواجهة — لمحاور الرسوم البيانية */
+function lastMonths(lang: 'ar' | 'en', n = 6) {
+  const out: string[] = []
+  const d = new Date()
+  for (let i = n - 1; i >= 0; i--) {
+    const m = new Date(d.getFullYear(), d.getMonth() - i, 1)
+    out.push(m.toLocaleDateString(lang === 'ar' ? 'ar-SA' : 'en-GB', { month: 'short', year: '2-digit' }))
+  }
+  return out
+}
+
+/* بيانات تجريبية ثابتة (مولّدة بصورة حتمية) لأغراض العرض والاختبار */
+function demoMonthly(lang: 'ar' | 'en') {
+  const months = lastMonths(lang)
+  const seed = [4, 7, 5, 9, 6, 8]
+  return months.map((m, i) => {
+    const s = seed[i % seed.length]
+    return {
+      month: m,
+      pm: 3 + ((s * 2) % 6),
+      cm: 2 + ((s * 3) % 5),
+      cost: 4000 + s * 950 + i * 380,
+      down: 6 + ((s * 4) % 14),
+    }
+  })
+}
+
+const DEMO_PRIO = [
+  { name: 'حرجة', value: 4 },
+  { name: 'عالية', value: 7 },
+  { name: 'متوسطة', value: 9 },
+  { name: 'منخفضة', value: 3 },
+]
 
 export function StatusBadge({ status }: { status: string }) {
   return <Badge className={`${STATUS_COLORS[status] ?? 'bg-slate-100 text-slate-600'}`}>{status}</Badge>
@@ -31,6 +71,8 @@ export default function Dashboard() {
   const done =
     db.pmOrders.filter((o) => o.status === 'مكتملة').length +
     db.cmOrders.filter((o) => o.status === 'مكتملة').length
+
+  const monthly = demoMonthly(lang)
 
   const kpis = [
     { label: t('mt.assetsTotal'), value: db.assets.length, icon: Boxes, to: '/assets', color: '#2e75b6' },
@@ -66,6 +108,30 @@ export default function Dashboard() {
           {t('mt.today')}: {fmtDate(localToday())}
         </Badge>
       </div>
+
+      {/* لافتة الترحيب بالشعارين */}
+      <Card className="border-0 bg-gradient-to-l from-[#0d1f3c] via-[#17365d] to-[#1f4e79] text-white shadow">
+        <CardContent className="flex flex-wrap items-center justify-between gap-4 p-4 md:p-5">
+          <div className="flex items-center gap-3">
+            <img
+              src="/logos/dammam-airports.png"
+              alt="Dammam Airports"
+              className="h-12 w-auto rounded bg-white p-1 object-contain md:h-14"
+            />
+            <div>
+              <div className="text-base font-bold leading-tight md:text-lg">{t('dash.welcome')}</div>
+              <div className="text-xs text-[#9fc3e8]">{t('dash.welcomeSub')}</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="text-end">
+              <div className="text-xs font-semibold text-[#9fc3e8]">MAG</div>
+              <div className="text-[11px] text-[#9fc3e8]">{lang === 'ar' ? 'المجال العربي' : 'Al Majal Al Arabi'}</div>
+            </div>
+            <img src="/logos/al-majal.png" alt="MAG — Al Majal Al Arabi" className="h-10 w-auto object-contain md:h-12" />
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {kpis.map(({ label, value, icon: Icon, to, color, bad }) => (
@@ -131,6 +197,70 @@ export default function Dashboard() {
             ))}
           </CardContent>
         </Card>
+      </div>
+
+      {/* الرسوم البيانية — بيانات تجريبية للعرض */}
+      <div>
+        <div className="mb-2 flex items-center gap-2">
+          <h2 className="text-lg font-bold text-[#17365d]">{t('dash.chartsSection')}</h2>
+          <Badge className="bg-[#ffd966] text-[#17365d] hover:bg-[#ffd966]">{t('dash.demoBadge')}</Badge>
+        </div>
+        <div className="grid gap-4 lg:grid-cols-3">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">{t('dash.monthlyCompleted')}</CardTitle>
+            </CardHeader>
+            <CardContent className="h-56">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={monthly} margin={{ top: 4, right: 4, left: 4, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5ecf5" />
+                  <XAxis dataKey="month" tick={{ fontSize: 11 }} />
+                  <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
+                  <Tooltip />
+                  <Legend wrapperStyle={{ fontSize: 12 }} />
+                  <Bar dataKey="pm" name="PM" stackId="a" fill="#2e75b6" radius={[0, 0, 0, 0]} />
+                  <Bar dataKey="cm" name="CM" stackId="a" fill="#e8a33d" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">{t('dash.monthlyCost')}</CardTitle>
+            </CardHeader>
+            <CardContent className="h-56">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={monthly} margin={{ top: 4, right: 4, left: 4, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5ecf5" />
+                  <XAxis dataKey="month" tick={{ fontSize: 11 }} />
+                  <YAxis tick={{ fontSize: 11 }} />
+                  <Tooltip />
+                  <Line type="monotone" dataKey="cost" stroke="#3aa655" strokeWidth={2.5} dot={{ r: 3 }} />
+                </LineChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">{t('dash.prioDist')}</CardTitle>
+            </CardHeader>
+            <CardContent className="h-56">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie data={DEMO_PRIO} dataKey="value" nameKey="name" innerRadius={42} outerRadius={70} paddingAngle={3}>
+                    {DEMO_PRIO.map((_, i) => (
+                      <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend wrapperStyle={{ fontSize: 12 }} />
+                </PieChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
       <Card className={overduePm.length > 0 ? 'border-red-300' : ''}>
