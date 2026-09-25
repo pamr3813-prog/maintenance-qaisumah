@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { useStore } from '@/lib/db'
-import { useLang } from '@/lib/i18n'
+import { useLang, statusLabel, prioLabel, freqLabel } from '@/lib/i18n'
 import { fmtDate, fmtMoney } from '@/lib/format'
 import { DEPTS, FREQ, ORDER_STATUS, PRIORITY, deptLabel, isOverdue, localToday } from '@/lib/departments'
 import { SearchableSelect } from '@/components/SearchableSelect'
@@ -217,16 +217,16 @@ export default function OrdersPage({ kind }: { kind: Kind }) {
                     ) : null}
                   </TableCell>
                   {!isPm && (
-                    <TableCell><Badge className={PRIO_STYLE[(o as CmOrder).priority] ?? ''}>{(o as CmOrder).priority}</Badge></TableCell>
+                    <TableCell><Badge className={PRIO_STYLE[(o as CmOrder).priority] ?? ''}>{prioLabel((o as CmOrder).priority, lang)}</Badge></TableCell>
                   )}
-                  {isPm && <TableCell>{(o as PmOrder).freq}</TableCell>}
+                  {isPm && <TableCell>{freqLabel((o as PmOrder).freq, lang)}</TableCell>}
                   <TableCell className="whitespace-normal break-words">{o.techName || '—'}</TableCell>
                   <TableCell>
                     <Badge
                       variant={o.status === 'مكتملة' ? 'default' : o.status === 'متوقفة' ? 'destructive' : 'outline'}
                       className={o.status === 'قيد التنفيذ' ? 'bg-amber-100 text-amber-800' : ''}
                     >
-                      {o.status}
+                      {statusLabel(o.status, lang)}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-center">
@@ -290,7 +290,7 @@ function OrderDialog({
   initial?: PmOrder | CmOrder
   currentUserName: string
 }) {
-  const { t } = useLang()
+  const { t, lang } = useLang()
   const isPm = kind === 'pm'
   const [open, setOpen] = useState(false)
   const [date, setDate] = useState(initial?.date ?? localToday())
@@ -365,7 +365,7 @@ function OrderDialog({
             <>
               <div className="space-y-1.5">
                 <Label>{t('mt.freq')}</Label>
-                <SearchableSelect options={FREQ.map((f) => ({ value: f, label: f }))} value={freq} onChange={setFreq} clearable={false} />
+                <SearchableSelect options={FREQ.map((f) => ({ value: f, label: freqLabel(f, lang) }))} value={freq} onChange={setFreq} clearable={false} />
               </div>
               <div className="space-y-1.5">
                 <Label>{t('mt.due')}</Label>
@@ -377,7 +377,7 @@ function OrderDialog({
             <>
               <div className="space-y-1.5">
                 <Label>{t('mt.priority')}</Label>
-                <SearchableSelect options={PRIORITY.map((p) => ({ value: p, label: p }))} value={priority} onChange={setPriority} clearable={false} />
+                <SearchableSelect options={PRIORITY.map((p) => ({ value: p, label: prioLabel(p, lang) }))} value={priority} onChange={setPriority} clearable={false} />
               </div>
               <div className="space-y-1.5">
                 <Label>{t('mt.downHours')}</Label>
@@ -397,7 +397,7 @@ function OrderDialog({
           <div className="space-y-1.5">
             <Label>{t('mt.status')}</Label>
             <SearchableSelect
-              options={ORDER_STATUS.map((s) => ({ value: s, label: s }))}
+              options={ORDER_STATUS.map((s) => ({ value: s, label: statusLabel(s, lang) }))}
               value={status}
               onChange={(v) => setStatus(v as OrderStatus)}
               clearable={false}

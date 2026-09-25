@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { useStore } from '@/lib/db'
-import { useLang } from '@/lib/i18n'
+import { useLang, critLabel, assetStatusLabel } from '@/lib/i18n'
 import { fmtDate } from '@/lib/format'
 import { ASSET_STATUS, CRITICALITY, DEPTS, ZONES, deptLabel } from '@/lib/departments'
 import { SearchableSelect } from '@/components/SearchableSelect'
@@ -97,10 +97,10 @@ export default function AssetsPage() {
                 <TableCell className="whitespace-normal break-words text-muted-foreground">{a.location}</TableCell>
                 <TableCell>{a.category}</TableCell>
                 <TableCell className="text-muted-foreground">{a.installDate ? fmtDate(a.installDate) : '—'}</TableCell>
-                <TableCell><Badge className={CRIT_STYLE[a.criticality] ?? ''}>{a.criticality}</Badge></TableCell>
+                <TableCell><Badge className={CRIT_STYLE[a.criticality] ?? ''}>{critLabel(a.criticality, lang)}</Badge></TableCell>
                 <TableCell>
                   <Badge variant={a.status === 'تشغيل' ? 'default' : a.status === 'خارج الخدمة' ? 'destructive' : 'outline'}>
-                    {a.status}
+                    {assetStatusLabel(a.status, lang)}
                   </Badge>
                 </TableCell>
                 <TableCell>
@@ -228,7 +228,7 @@ function AssetDialog({
           <div className="space-y-1.5">
             <Label>{t('mt.criticality')}</Label>
             <SearchableSelect
-              options={CRITICALITY.map((c) => ({ value: c, label: c }))}
+              options={CRITICALITY.map((c) => ({ value: c, label: critLabel(c, lang) }))}
               value={criticality}
               onChange={setCriticality}
               clearable={false}
@@ -237,7 +237,7 @@ function AssetDialog({
           <div className="sm:col-span-2 space-y-1.5">
             <Label>{t('mt.status')}</Label>
             <SearchableSelect
-              options={ASSET_STATUS.map((s) => ({ value: s, label: s }))}
+              options={ASSET_STATUS.map((s) => ({ value: s, label: assetStatusLabel(s, lang) }))}
               value={status}
               onChange={setStatus}
               clearable={false}

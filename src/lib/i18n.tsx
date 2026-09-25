@@ -473,3 +473,53 @@ export function tn(lang: Lang, ar: string, en: string): string {
 export function te(k: TKey): string {
   return dict[k].en
 }
+
+/* ===== تسميات الحالات والأولويات المخزنة عربياً — تُعرض مترجمة حسب لغة الواجهة ===== */
+const STATUS_EN: Record<string, string> = {
+  'مكتملة': 'Completed',
+  'قيد التنفيذ': 'In Progress',
+  'لم تبدأ': 'Not Started',
+  'متوقفة': 'On Hold',
+}
+const PRIO_EN: Record<string, string> = {
+  'حرجة': 'Critical',
+  'عالية': 'High',
+  'متوسطة': 'Medium',
+  'منخفضة': 'Low',
+}
+const FREQ_EN: Record<string, string> = {
+  'يومي': 'Daily',
+  'أسبوعي': 'Weekly',
+  'شهري': 'Monthly',
+  'ربع سنوي': 'Quarterly',
+  'نصف سنوي': 'Semi-Annual',
+  'سنوي': 'Annual',
+}
+const CRIT_EN: Record<string, string> = {
+  'حرج': 'Critical',
+  'عالي': 'High',
+  'متوسط': 'Medium',
+  'منخفض': 'Low',
+}
+const ASSET_STATUS_EN: Record<string, string> = {
+  'تشغيل': 'Operational',
+  'خارج الخدمة': 'Out of Service',
+  'صيانة': 'Under Maintenance',
+  'احتياطي': 'Standby',
+}
+
+export function statusLabel(s: string, lang: Lang): string {
+  return lang === 'ar' ? s : (STATUS_EN[s] ?? s)
+}
+export function prioLabel(p: string, lang: Lang): string {
+  return lang === 'ar' ? p : (PRIO_EN[p] ?? p)
+}
+export function freqLabel(f: string, lang: Lang): string {
+  return lang === 'ar' ? f : (FREQ_EN[f] ?? f)
+}
+export function critLabel(c: string, lang: Lang): string {
+  return lang === 'ar' ? c : (CRIT_EN[c] ?? c)
+}
+export function assetStatusLabel(s: string, lang: Lang): string {
+  return lang === 'ar' ? s : (ASSET_STATUS_EN[s] ?? s)
+}

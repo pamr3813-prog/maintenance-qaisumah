@@ -8,7 +8,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { useStore } from '@/lib/db'
-import { useLang } from '@/lib/i18n'
+import { useLang, statusLabel, prioLabel } from '@/lib/i18n'
 import { fmtDate, fmtDateTime, fmtMoney } from '@/lib/format'
 import { DEPTS, deptLabel, isOverdue, localToday } from '@/lib/departments'
 import { ReadOnlyBanner } from '@/components/ReadOnly'
@@ -50,15 +50,19 @@ function demoMonthly(lang: 'ar' | 'en') {
   })
 }
 
-const DEMO_PRIO = [
+const DEMO_PRIO_AR = [
   { name: 'حرجة', value: 4 },
   { name: 'عالية', value: 7 },
   { name: 'متوسطة', value: 9 },
   { name: 'منخفضة', value: 3 },
 ]
+function demoPrio(lang: 'ar' | 'en') {
+  return DEMO_PRIO_AR.map((p) => ({ ...p, name: prioLabel(p.name, lang) }))
+}
 
 export function StatusBadge({ status }: { status: string }) {
-  return <Badge className={`${STATUS_COLORS[status] ?? 'bg-slate-100 text-slate-600'}`}>{status}</Badge>
+  const { lang } = useLang()
+  return <Badge className={`${STATUS_COLORS[status] ?? 'bg-slate-100 text-slate-600'}`}>{statusLabel(status, lang)}</Badge>
 }
 
 export default function Dashboard() {
@@ -76,6 +80,7 @@ export default function Dashboard() {
     db.cmOrders.filter((o) => o.status === 'مكتملة').length
 
   const monthly = demoMonthly(lang)
+  const prio = demoPrio(lang)
 
   const kpis = [
     { label: t('mt.assetsTotal'), value: db.assets.length, icon: Boxes, to: '/assets', color: '#2e75b6' },
@@ -191,7 +196,7 @@ export default function Dashboard() {
           <CardContent className="space-y-2">
             {['مكتملة', 'قيد التنفيذ', 'لم تبدأ', 'متوقفة'].map((s) => (
               <div key={s} className="flex items-center gap-3">
-                <div className="w-24 shrink-0"><StatusBadge status={s} /></div>
+                <div className="w-24 shrink-0"><Badge className={`${STATUS_COLORS[s] ?? 'bg-slate-100 text-slate-600'}`}>{statusLabel(s, lang)}</Badge></div>
                 <div className="h-5 flex-1 overflow-hidden rounded bg-muted">
                   <div className={`h-full ${STATUS_COLORS[s].split(' ')[0]}`} style={{ width: `${(statusCount(s) / maxStatus) * 100}%` }} />
                 </div>
@@ -272,8 +277,8 @@ export default function Dashboard() {
             <CardContent className="h-56">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={DEMO_PRIO} dataKey="value" nameKey="name" innerRadius={42} outerRadius={70} paddingAngle={3}>
-                    {DEMO_PRIO.map((_, i) => (
+                  <Pie data={prio} dataKey="value" nameKey="name" innerRadius={42} outerRadius={70} paddingAngle={3}>
+                    {prio.map((_, i) => (
                       <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
                     ))}
                   </Pie>
