@@ -123,6 +123,16 @@ export default function Layout() {
           )}
         </nav>
 
+        <div className="border-t border-white/10 p-3">
+          <button
+            type="button"
+            onClick={signOut}
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-[#cfe0f5] hover:bg-white/10 hover:text-white"
+          >
+            <LogOut className="size-4 shrink-0 text-[#ffd966]" />
+            {t('auth.logout')}
+          </button>
+        </div>
         <div className="border-t border-white/10 p-3 text-xs text-[#9fc3e8]">
           {t('app.footer')}
           <span className="mt-1 block text-[10px] text-white/50">
@@ -161,11 +171,11 @@ export default function Layout() {
             <span className="hidden text-sm text-[#9fc3e8] md:inline">{t('role.hint')}</span>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 items-center gap-2">
             {/* الإشعارات */}
             <Popover open={notifOpen} onOpenChange={setNotifOpen}>
               <PopoverTrigger asChild>
-                <Button variant="outline" size="icon" className="relative border-white/20 bg-transparent text-white hover:bg-white/10 hover:text-white" onClick={openNotifications}>
+                <Button variant="outline" size="icon" className="relative shrink-0 border-white/20 bg-transparent text-white hover:bg-white/10 hover:text-white" onClick={openNotifications}>
                   <Bell className="size-4" />
                   {myUnread > 0 && (
                     <span className="absolute -top-1 -end-1 flex size-4 items-center justify-center rounded-full bg-[#ffd966] text-[10px] font-bold text-[#17365d]">
@@ -190,23 +200,23 @@ export default function Layout() {
               </PopoverContent>
             </Popover>
 
-            {/* اللغة */}
+            {/* اللغة — أيقونة فقط على الجوال */}
             <button
               onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')}
-              className="flex items-center gap-1.5 rounded-md border border-white/20 px-3 py-1.5 text-sm font-medium hover:bg-white/10"
+              className="flex shrink-0 items-center gap-1.5 rounded-md border border-white/20 px-2 py-1.5 text-sm font-medium hover:bg-white/10 sm:px-3"
             >
               <Languages className="size-4" />
-              {t('lang.switch')}
+              <span className="hidden sm:inline">{t('lang.switch')}</span>
             </button>
 
-            {/* المستخدم الحالي */}
+            {/* المستخدم الحالي — الاسم مخفي على الجوال حتى لا يدفع زر الخروج خارج الشاشة */}
             {currentUser && (
-              <div className="flex items-center gap-2 rounded-md border border-white/20 px-2 py-1.5 md:px-3">
-                <div className="min-w-0 text-end leading-tight">
+              <div className="flex shrink-0 items-center gap-1 rounded-md border border-white/20 px-1.5 py-1.5 md:gap-2 md:px-3">
+                <div className="hidden min-w-0 text-end leading-tight md:block">
                   <div className="max-w-[8.5rem] truncate text-sm font-semibold md:max-w-none">{currentUser.name}</div>
                   <div className="truncate text-[11px] text-[#9fc3e8]">{roleLabel(currentUser.role, lang)}</div>
                 </div>
-                <Button variant="ghost" size="icon" onClick={signOut} title={t('auth.logout')} className="text-white hover:bg-white/10 hover:text-white">
+                <Button variant="ghost" size="icon" onClick={signOut} title={t('auth.logout')} aria-label={t('auth.logout')} className="text-white hover:bg-white/10 hover:text-white">
                   <LogOut className="size-4 text-[#ffd966]" />
                 </Button>
               </div>
