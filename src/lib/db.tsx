@@ -72,7 +72,7 @@ export const PERMS: Record<string, string[]> = {
 }
 
 /** رقم إصدار التطبيق — يظهر في الشريط الجانبي للتأكد من وصول آخر تحديث */
-export const APP_VERSION = 'v1.6.4'
+export const APP_VERSION = 'v1.7.0'
 
 // ===== أنواع السحابة =====
 
@@ -102,6 +102,7 @@ const EMPTY_DB: Db = {
   counters: { pm: 1001, cm: 2001 },
   users: [],
   notifications: [],
+  chat: [],
 }
 
 // ===== جلسة HTTP =====

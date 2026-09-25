@@ -5,6 +5,7 @@ import {
   Building2,
   RefreshCw,
   Wrench,
+  MessagesSquare,
   Languages,
   LogOut,
   Bell,
@@ -29,6 +30,7 @@ const NAV = [
   { to: '/assets', key: 'nav.assets', icon: Boxes },
   { to: '/pm', key: 'nav.pm', icon: RefreshCw },
   { to: '/cm', key: 'nav.cm', icon: Wrench },
+  { to: '/chat', key: 'nav.chat', icon: MessagesSquare },
 ] as const
 
 export default function Layout() {

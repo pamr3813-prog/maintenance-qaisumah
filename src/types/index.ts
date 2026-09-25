@@ -93,6 +93,15 @@ export interface Notification {
   readBy: string[]
 }
 
+export interface ChatMessage {
+  id: string
+  userId: string
+  userName: string
+  text: string
+  photo?: { dataUrl: string; name: string } | null
+  at: string
+}
+
 export interface Db {
   assets: Asset[]
   pmOrders: PmOrder[]
@@ -100,4 +109,5 @@ export interface Db {
   counters: { pm: number; cm: number }
   users: User[]
   notifications: Notification[]
+  chat: ChatMessage[]
 }

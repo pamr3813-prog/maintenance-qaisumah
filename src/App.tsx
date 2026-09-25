@@ -6,6 +6,7 @@ import Dashboard from '@/pages/Dashboard'
 import AssetsPage from '@/pages/AssetsPage'
 import OrdersPage from '@/pages/OrdersPage'
 import DepartmentsPage from '@/pages/DepartmentsPage'
+import ChatPage from '@/pages/ChatPage'
 import LoginPage from '@/pages/LoginPage'
 import AdminPage from '@/pages/AdminPage'
 import { StoreProvider, useStore, PERMS } from '@/lib/db'
@@ -40,6 +41,7 @@ export default function App() {
             <Route path="/assets" element={<AssetsPage />} />
             <Route path="/pm" element={<OrdersPage kind="pm" />} />
             <Route path="/cm" element={<OrdersPage kind="cm" />} />
+            <Route path="/chat" element={<ChatPage />} />
             <Route path="/depts" element={<DepartmentsPage />} />
             <Route
               path="/admin"

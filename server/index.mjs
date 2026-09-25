@@ -93,6 +93,7 @@ function buildSeed() {
       mkUser('مدير الموقع / Site Manager', 'site.manager@qaisumah-airport.sa', 'siteManager', '6666'),
     ],
     notifications: [],
+    chat: [],
   }
 }
 
@@ -166,6 +167,7 @@ async function initData() {
 }
 
 let db = await initData()
+db.chat ??= []
 
 // ===== الإشعارات =====
 const sessions = new Map() // token -> userId
@@ -346,6 +348,33 @@ function handleAction(user, type, payload) {
         if (!n.readBy.includes(user.id)) n.readBy.push(user.id)
       })
       break
+
+    case 'sendChat': {
+      const text = (payload.text ?? '').trim()
+      const photo = payload.photo ?? null
+      if (!text && !photo) throw new Error('اكتب رسالة أو أرفق صورة')
+      if (text.length > 2000) throw new Error('الرسالة طويلة جداً (الحد 2000 حرف)')
+      let safePhoto = null
+      if (photo) {
+        if (typeof photo.dataUrl !== 'string' || !photo.dataUrl.startsWith('data:image/')) throw new Error('صيغة الصورة غير صالحة')
+        if (photo.dataUrl.length > 900_000) throw new Error('حجم الصورة كبير — الحد الأقصى نحو 650 كيلوبايت')
+        safePhoto = { dataUrl: photo.dataUrl, name: String(photo.name ?? '').slice(0, 120) }
+      }
+      db.chat ??= []
+      const msg = { id: uid(), userId: user.id, userName: user.name, text, photo: safePhoto, at: now }
+      db.chat.push(msg)
+      if (db.chat.length > 500) db.chat = db.chat.slice(-500)
+      result = msg
+      break
+    }
+
+    case 'deleteChat': {
+      const m = (db.chat ?? []).find((x) => x.id === payload.id)
+      if (!m) break
+      if (m.userId !== user.id && user.role !== 'admin') throw new Error('غير مصرح — يمكنك حذف رسائلك فقط')
+      db.chat = db.chat.filter((x) => x.id !== payload.id)
+      break
+    }
 
     default:
       throw new Error(`إجراء غير معروف: ${type}`)
