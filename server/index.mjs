@@ -171,8 +171,8 @@ let db = await initData()
 const sessions = new Map() // token -> userId
 const wss = new WebSocketServer({ noServer: true })
 
-function notify(text) {
-  db.notifications.unshift({ id: uid(), text, at: new Date().toISOString(), readBy: [] })
+function notify(text, link) {
+  db.notifications.unshift({ id: uid(), text, link: link ?? null, at: new Date().toISOString(), readBy: [] })
   if (db.notifications.length > 100) db.notifications.length = 100
 }
 
@@ -200,7 +200,7 @@ function handleAction(user, type, payload) {
           location: (a.location ?? '').trim(), category: (a.category ?? '').trim(),
           installDate: a.installDate ?? '', criticality: a.criticality ?? 'متوسط', status: a.status ?? 'تشغيل',
         })
-        notify(`عدّل ${user.name} بيانات الأصل ${t.assetNo}`)
+        notify(`عدّل ${user.name} بيانات الأصل ${t.assetNo}`, `/assets?q=${encodeURIComponent(t.assetNo)}`)
       } else {
         if (db.assets.some((x) => x.assetNo === a.assetNo.trim())) throw new Error('رقم الأصل مسجل مسبقاً')
         const asset = {
@@ -210,7 +210,7 @@ function handleAction(user, type, payload) {
           createdBy: user.name, createdAt: now,
         }
         db.assets.push(asset)
-        notify(`أضاف ${user.name} أصلاً جديداً: ${asset.assetNo} — ${asset.name}`)
+        notify(`أضاف ${user.name} أصلاً جديداً: ${asset.assetNo} — ${asset.name}`, `/assets?q=${encodeURIComponent(asset.assetNo)}`)
       }
       break
     }
@@ -220,7 +220,7 @@ function handleAction(user, type, payload) {
       const t = db.assets.find((x) => x.id === payload.id)
       if (!t) break
       db.assets = db.assets.filter((x) => x.id !== payload.id)
-      notify(`حذف ${user.name} الأصل ${t.assetNo}`)
+      notify(`حذف ${user.name} الأصل ${t.assetNo}`, '/assets')
       break
     }
 
@@ -240,7 +240,7 @@ function handleAction(user, type, payload) {
           status: o.status ?? 'لم تبدأ', cost: Number(o.cost) || 0, due: o.due ?? '',
           completedAt: o.status === 'مكتملة' ? (wasDone ? t.completedAt : now) : undefined,
         })
-        notify(`عدّل ${user.name} عملية دورية ${t.no}`)
+        notify(`عدّل ${user.name} عملية دورية ${t.no}`, `/pm?q=${encodeURIComponent(t.no)}`)
       } else {
         const no = `PM-${db.counters.pm++}`
         const order = {
@@ -250,7 +250,7 @@ function handleAction(user, type, payload) {
           createdBy: user.name, createdAt: now,
         }
         db.pmOrders.unshift(order)
-        notify(`أنشأ ${user.name} عملية دورية ${no}: ${order.task} — ${asset.name}`)
+        notify(`أنشأ ${user.name} عملية دورية ${no}: ${order.task} — ${asset.name}`, `/pm?q=${encodeURIComponent(no)}`)
       }
       break
     }
@@ -260,7 +260,7 @@ function handleAction(user, type, payload) {
       const t = db.pmOrders.find((x) => x.id === payload.id)
       if (!t) break
       db.pmOrders = db.pmOrders.filter((x) => x.id !== payload.id)
-      notify(`حذف ${user.name} العملية الدورية ${t.no}`)
+      notify(`حذف ${user.name} العملية الدورية ${t.no}`, '/pm')
       break
     }
 
@@ -281,7 +281,7 @@ function handleAction(user, type, payload) {
           photos: sanitizePhotos(o.photos) ?? t.photos,
           completedAt: o.status === 'مكتملة' ? (wasDone ? t.completedAt : now) : undefined,
         })
-        notify(`عدّل ${user.name} بلاغاً ${t.no}`)
+        notify(`عدّل ${user.name} بلاغاً ${t.no}`, `/cm?q=${encodeURIComponent(t.no)}`)
       } else {
         const no = `CM-${db.counters.cm++}`
         const order = {
@@ -293,7 +293,7 @@ function handleAction(user, type, payload) {
         }
         db.cmOrders.unshift(order)
         const pics = order.photos.length ? ` — مرفق ${order.photos.length} صورة` : ''
-        notify(`بلاغ عطل جديد ${no}: ${order.fault} — ${asset.name} (${PRIORITY_TXT[order.priority] || order.priority})${pics}`)
+        notify(`بلاغ عطل جديد ${no}: ${order.fault} — ${asset.name} (${PRIORITY_TXT[order.priority] || order.priority})${pics}`, `/cm?q=${encodeURIComponent(no)}`)
       }
       break
     }
@@ -303,7 +303,7 @@ function handleAction(user, type, payload) {
       const t = db.cmOrders.find((x) => x.id === payload.id)
       if (!t) break
       db.cmOrders = db.cmOrders.filter((x) => x.id !== payload.id)
-      notify(`حذف ${user.name} بلاغ ${t.no}`)
+      notify(`حذف ${user.name} بلاغ ${t.no}`, '/cm')
       break
     }
 
@@ -322,10 +322,10 @@ function handleAction(user, type, payload) {
         const { pin, ...rest } = u
         Object.assign(target, rest)
         if (pin) target.pin = pin
-        notify(`حدّث ${user.name} بيانات المستخدم ${u.name}`)
+        notify(`حدّث ${user.name} بيانات المستخدم ${u.name}`, '/admin')
       } else {
         db.users.push({ id: uid(), name: u.name, email: u.email, role: u.role, pin: u.pin || '0000', active: u.active !== false, permOverrides: u.permOverrides || undefined, createdAt: now })
-        notify(`أضاف ${user.name} مستخدماً جديداً: ${u.name} (${u.role})`)
+        notify(`أضاف ${user.name} مستخدماً جديداً: ${u.name} (${u.role})`, '/admin')
       }
       break
     }
@@ -337,7 +337,7 @@ function handleAction(user, type, payload) {
       if (target.id === user.id) throw new Error('لا يمكنك حذف حسابك الحالي')
       if (target.role === 'admin' && db.users.filter((x) => x.role === 'admin' && x.active).length <= 1) throw new Error('لا يمكن حذف آخر مدير للنظام')
       db.users = db.users.filter((x) => x.id !== payload.id)
-      notify(`حذف المدير المستخدم ${target.name}`)
+      notify(`حذف المدير المستخدم ${target.name}`, '/admin')
       break
     }
 
@@ -445,7 +445,7 @@ function checkOverdueReminders() {
     if (o.status === 'مكتملة' || !o.due || o.due >= today) continue
     if (overdueNotified.get(o.id) === today) continue
     overdueNotified.set(o.id, today)
-    notify(`⏰ تذكير بعمل متأخر: ${o.no} — ${o.task} (كان مستحقاً بتاريخ ${o.due})`)
+    notify(`⏰ تذكير بعمل متأخر: ${o.no} — ${o.task} (كان مستحقاً بتاريخ ${o.due})`, `/pm?q=${encodeURIComponent(o.no)}`)
     changed = true
   }
   if (changed) broadcast()

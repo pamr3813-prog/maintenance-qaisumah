@@ -72,7 +72,7 @@ export const PERMS: Record<string, string[]> = {
 }
 
 /** رقم إصدار التطبيق — يظهر في الشريط الجانبي للتأكد من وصول آخر تحديث */
-export const APP_VERSION = 'v1.6.3'
+export const APP_VERSION = 'v1.6.4'
 
 // ===== أنواع السحابة =====
 
@@ -154,6 +154,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const reconnectRef = useRef<number | null>(null)
   const ackRef = useRef<Map<string, { resolve: (v: unknown) => void; reject: (e: Error) => void }>>(new Map())
   const pendingRef = useRef<{ type: string; payload: unknown; resolve: (v: unknown) => void; reject: (e: Error) => void }[]>([])
+  /* تتبّع الإشعارات المُنبَّه عنها — لإظهار تنبيه منبثق لكل إشعار جديد يصل لحظياً */
+  const seenNotifsRef = useRef<Set<string>>(new Set())
+  const notifInitRef = useRef(false)
 
   const flushPending = useCallback(() => {
     const ws = wsRef.current
@@ -197,6 +200,19 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       if (msg.type === 'state') {
         setDb(msg.db)
         setReady(true)
+        /* تنبيه منبثق لكل إشعار جديد — الضغط عليه ينقلك إلى مصدره */
+        const list = (msg.db?.notifications ?? []) as { id: string; text: string; link?: string | null }[]
+        if (!notifInitRef.current) {
+          list.forEach((n) => seenNotifsRef.current.add(n.id))
+          notifInitRef.current = true
+        } else {
+          const fresh = list.filter((n) => !seenNotifsRef.current.has(n.id)).slice(0, 3)
+          for (const n of fresh) {
+            seenNotifsRef.current.add(n.id)
+            const go = n.link ? () => window.location.assign(n.link as string) : undefined
+            toast.info(n.text, go ? { action: { label: 'فتح ↗', onClick: go } } : undefined)
+          }
+        }
       } else if (msg.type === 'ack') {
         const p = msg.actionId && ackRef.current.get(msg.actionId)
         if (p) {

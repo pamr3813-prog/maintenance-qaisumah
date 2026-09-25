@@ -88,6 +88,7 @@ export interface User {
 export interface Notification {
   id: string
   text: string
+  link?: string | null
   at: string
   readBy: string[]
 }

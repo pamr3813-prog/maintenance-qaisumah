@@ -29,7 +29,7 @@ export default function AssetsPage() {
   const { t, lang } = useLang()
   const [params] = useSearchParams()
   const [dept, setDept] = useState(params.get('dept') ?? '')
-  const [q, setQ] = useState('')
+  const [q, setQ] = useState(params.get('q') ?? '')
   const editable = can('canEditAssets')
 
   const ql = q.trim().toLowerCase()

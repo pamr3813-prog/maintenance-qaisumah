@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState } from 'react'
+import { useSearchParams } from 'react-router'
 import { Plus, Pencil, Trash2, Camera, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -119,8 +120,9 @@ const PRIO_STYLE: Record<string, string> = {
 export default function OrdersPage({ kind }: { kind: Kind }) {
   const { db, send, can, currentUser } = useStore()
   const { t, lang } = useLang()
+  const [params] = useSearchParams()
   const [dept, setDept] = useState('')
-  const [q, setQ] = useState('')
+  const [q, setQ] = useState(params.get('q') ?? '')
   const editable = can('canEditOrders')
 
   const isPm = kind === 'pm'

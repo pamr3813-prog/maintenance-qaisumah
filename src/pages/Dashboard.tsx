@@ -354,9 +354,24 @@ export default function Dashboard() {
         <CardContent>
           <ul className="divide-y text-sm">
             {db.notifications.slice(0, 8).map((n) => (
-              <li key={n.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
-                <span className="min-w-0 break-words">{n.text}</span>
-                <span className="text-xs text-muted-foreground">{fmtDateTime(n.at)}</span>
+              <li key={n.id}>
+                {n.link ? (
+                  <Link
+                    to={n.link}
+                    className="flex flex-wrap items-center justify-between gap-2 rounded-md px-2 py-2 transition-colors hover:bg-accent"
+                  >
+                    <span className="min-w-0 break-words">{n.text}</span>
+                    <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                      {fmtDateTime(n.at)}
+                      <span className="text-primary">↗</span>
+                    </span>
+                  </Link>
+                ) : (
+                  <div className="flex flex-wrap items-center justify-between gap-2 py-2">
+                    <span className="min-w-0 break-words">{n.text}</span>
+                    <span className="text-xs text-muted-foreground">{fmtDateTime(n.at)}</span>
+                  </div>
+                )}
               </li>
             ))}
             {db.notifications.length === 0 && (
